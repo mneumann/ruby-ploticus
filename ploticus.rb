@@ -11,6 +11,7 @@ class Ploticus
 
   def plot!(img_type="png", *args)
     io = IO.popen("pl -stdin -o stdout -#{ img_type } #{ args.join(' ') }", "w+")
+    STDERR.puts @s if $DEBUG
     io.write @s
     io.close_write
     img = io.read
@@ -23,7 +24,7 @@ class Ploticus
   end
 
   PROCS = [ 
-    :xaxis, :yaxis, :lineplot, :page,
+    :xaxis, :yaxis, :lineplot, :page, :legend,
     [:data, :getdata],
     [:area, :areadef], 
   ]
@@ -50,7 +51,7 @@ class Ploticus
   def convert(obj)
     case obj
     when String
-      obj.gsub("\n", "\\n")
+      obj.gsub("\n", "\\n") + "\n"
     when Array
       if obj[0].kind_of? Array
         obj.map {|row| row.join(" ") + "\n"}.join
@@ -59,6 +60,10 @@ class Ploticus
       end
     when Hash
       obj.map {|k,v| "#{ k }=#{ convert(v) }" }.join(" ")
+    when true
+      'yes'
+    when false
+      'no'
     else
       obj.to_s
     end
