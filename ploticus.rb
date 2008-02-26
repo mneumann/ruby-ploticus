@@ -1,4 +1,6 @@
 class Ploticus
+  PLOTICUS_BIN = "ploticus"
+
   instance_methods.each { |m| undef_method m unless m =~ /^__/ }
 
   def initialize
@@ -9,8 +11,8 @@ class Ploticus
     data {|a| a.data = rows }
   end
 
-  def plot!(img_type="png", *args)
-    io = IO.popen("pl -stdin -o stdout -#{ img_type } #{ args.join(' ') }", "w+")
+  def plot!(img_type="png", pl_executable=PLOTICUS_BIN, *args)
+    io = IO.popen("#{pl_executable} -stdin -o stdout -#{ img_type } #{ args.join(' ') }", "w+")
     STDERR.puts @s if $DEBUG
     io.write @s
     io.close_write
